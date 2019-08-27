@@ -100,7 +100,7 @@ def ReadAtlantisSection(secnum):
     
     sectdist = getDistance(lat, lon, latmax, lonmax)*np.cos(deltaangle)
 
-    return sectdist, z, sal, rho, yearday
+    return sectdist, z, sal, rho, yearday, lat, lon
 #%%
 #conts = np.linspace(35, 37, 30)
 #plt.figure()

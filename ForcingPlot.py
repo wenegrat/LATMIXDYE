@@ -24,8 +24,30 @@ plt.rcParams['contour.negative_linestyle'] = 'solid'
 #%% LOAD DATA
 
 filename = '/home/jacob/dedalus/LATMIX/LES_COARE35_forcing.mat' # Front run
-f = h5py.File(filename, 'r')
+matfile = spio.loadmat(filename,struct_as_record=False, squeeze_me=True)
 
 # List all groups
-print("Keys: %s" % f.keys())
-keys = list(f.keys())[:]
+yearday = matfile['yearday']
+tau_cs = matfile['tau_cs']
+tau_d = matfile['tau_d']
+qnet = matfile['net_heat_flux']
+tmag = np.sqrt(tau_cs**2 + tau_d**2)
+
+
+fig, ax1 = plt.subplots()
+
+color = 'tab:blue'
+ax1.plot(yearday, tmag, color=color, linewidth=2)
+ax1.tick_params(axis='y', labelcolor=color)
+ax1.set_ylabel('Wind-stress magnitude (N m$^{-2}$)', color=color)  # we already handled the x-label with ax1
+ax1.set_ylim((0, 1.2))
+ax1.set_xlim((64.5, 66))
+ax1.set_xlabel('yearday')
+ax2 = ax1.twinx()
+plt.axvline(64.86, linestyle='dashed', color='k')
+color = 'tab:red'
+ax2.plot(yearday, qnet, color=color, linewidth=2)
+ax2.set_ylabel('Net surface heat flux (W m$^{-2}$)', color=color)  # we already handled the x-label with ax1
+ax2.tick_params(axis='y', labelcolor=color)
+ax2.set_ylim((0, 1200))
+ax1.grid()
