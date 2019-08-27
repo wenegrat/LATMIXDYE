@@ -2,6 +2,9 @@
 # -*- coding: utf-8 -*-
 
 """
+
+Make animations of the dye dispersal.
+
 AnimateLatmix.py
 Created on Mon Mar 26 09:43:29 2018
 

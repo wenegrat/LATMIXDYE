@@ -3,6 +3,9 @@
 """
 Created on Wed Apr  4 14:51:40 2018
 
+This script does a simple Euler forward integration of an Ekman like balance
+with modeled stress divergence in order to compare with the full modeled velocity field.
+
 @author: jacob
 """
 import h5py

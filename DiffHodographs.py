@@ -2,14 +2,25 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Apr 13 15:16:58 2018
+Make hodographs with and without thermal wind mixing.
 
 @author: jacob
 """
+import h5py
+import scipy.io as spio
+import matplotlib.pyplot as plt
+import numpy as np
+from cmocean import cm as cmo
 
+plt.rcParams['text.usetex'] = True
+plt.rcParams['mathtext.fontset'] = 'stix'
+plt.rcParams['font.family'] = 'STIXGeneral'
+plt.rcParams['font.size'] = 14
+plt.rcParams['contour.negative_linestyle'] = 'solid'
 #%% LOAD NL SIM SNAPS
 filename = '/home/jacob/dedalus/LATMIX/notw.mat'
 fno = h5py.File(filename, 'r')
-
+z = fno['z'][:,0]
 umno = fno['ua']
 vmno = fno['va']
 vwno = fno['vw']
@@ -17,8 +28,9 @@ uwno = fno['uw']
 qno = fno['q']
 uzno = np.gradient(umno, axis=-1)/np.gradient(z)
 vzno = np.gradient(vmno, axis=-1)/np.gradient(z)
+timeno=fno['t'][:,0]
 #qzno = fno['qz']
-filename = '/home/jacob/dedalus/LATMIX/front.mat'
+filename = '/home/jacob/dedalus/LATMIX/run10k.mat'
 f = h5py.File(filename, 'r')
 
 um = f['ua']
@@ -27,11 +39,11 @@ vw = f['vw']
 uw = f['uw']
 q = f['q']
 #qz = f['qz']
-ud = um[:,:] - umno[0:1569,:]
-vd = vm[:,:] - vmno[0:1569,:] 
-
-udz = np.gradient(ud, axis=-1)/np.gradient(z)
-vdz = np.gradient(vd, axis=-1)/np.gradient(z)
+#ud = um[:,:] - umno[0:1569,:]
+#vd = vm[:,:] - vmno[0:1569,:] 
+#
+#udz = np.gradient(ud, axis=-1)/np.gradient(z)
+#vdz = np.gradient(vd, axis=-1)/np.gradient(z)
 
 vwz = np.gradient(vw, axis=-1)/np.gradient(z)
 uwz = np.gradient(uw, axis=-1)/np.gradient(z)
@@ -51,9 +63,14 @@ utno = np.transpose( np.gradient(np.transpose(umno[0:time.size]), axis=-1)/np.gr
 
 utd = ut - utno
 vtd = vt - vtno
+#
+#uwzd = uwz - uwzno[0:time.size,:]
+#vwzd = vwz - vwzno[0:time.size,:]
 
-uwzd = uwz - uwzno[0:time.size,:]
-vwzd = vwz - vwzno[0:time.size,:]
+coriolis = 9.3e-5
+dbdx = -5e-7
+Vgz = dbdx/coriolis
+Vg = (z[1:]-z[1])*Vgz
 
 #%% SINGLE DEPTH
 
@@ -74,7 +91,39 @@ ax[1].legend()
 ax[1].set_xlim((0, 1))
 ax[0].set_xlim((0, 1))
 ax[0].set_title(z[zdepth])
+#%% HODOGRAPHS FOR SUPPLEMENTARY INFORMATION
+yls = (-0.2, 0.2)
+fog, (ax1, ax2) = plt.subplots(1, 2, sharey=True, figsize=(9, 6.5))
+tl = range(0, 269)
+tl = 0
+tr = np.argmin(np.abs(time/86400 + 64.5 - 65.2))
+trno = np.argmin(np.abs(timeno/86400 + 64.5 - 65.2))
+for i in range(0, 7):
+    zind = np.argmin(np.abs(z + i*10 + 10))
+    ax1.plot(-vm[tl:tr, zind], um[tl:tr,zind])
+    ax2.plot(-vmno[tl:trno, zind], umno[tl:trno,zind], label='{} m'.format(str(np.round(z[zind]/10)*10)))
+
+#ax2.plot( -vmno[tl, 37:95:10]+0*Vg[37:95:10], umno[tl,37:95:10])
+ax2.legend(loc='center left',bbox_to_anchor=(1, 0.5))
+ax1.set_ylim(yls)
+ax1.set_xlim(yls)
+ax1.grid()
+ax2.set_ylim(yls)
+ax2.set_xlim(yls)
+ax2.grid()
+ax1.set_ylabel('Across front velocity [m/s]')
+ax1.set_xlabel('Along front velocity [m/s]')
+ax2.set_xlabel('Along front velocity [m/s]')
+ax1.set_title('FRONT')
+ax2.set_title('NO-GEOMIX')
+ax1.set(adjustable='box-forced', aspect='equal')
+ax2.set(adjustable='box-forced', aspect='equal')
+plt.tight_layout()
+#plt.axes('equal')
+#plt.savefig('/home/jacob/Dropbox/GulfStreamDye/LATMIXSCIENCE/FigureSI1.pdf', bbox_inches='tight')
+
 #%%
+
 tl = range(0, 300)
 plt.figure()
 for i in range(37, 95, 10 ):

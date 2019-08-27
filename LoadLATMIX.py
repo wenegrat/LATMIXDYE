@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
+This script loads the LATMIX data (from a particular run) and makes some basic plots
+
 Created on Thu Mar 22 15:20:39 2018
 
 @author: jacob
@@ -13,7 +15,7 @@ mpl.use('Agg')
 
 #from matplotlib.gridspec import GridSpec
 #matplotlib.use("Agg")
-mpl.pyplot.rcParams['animation.mencoder_path'] = '/usr/bin/mencoder'
+#mpl.pyplot.rcParams['animation.mencoder_path'] = '/usr/bin/mencoder'
 
 import matplotlib.animation as animation
 import h5py
