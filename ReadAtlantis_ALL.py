@@ -28,7 +28,7 @@ def ReadAtlantis_ALL():
     #%%
     lat = []
     lon = []
-    tmp = []
+    yearday = []
     for secnum in range(1, 16):
         if secnum<10:
             filename = '/home/jacob/dedalus/LATMIX/surveyD_files/SurveyD0{}.mat'.format(str(secnum)) # Front run
@@ -44,10 +44,14 @@ def ReadAtlantis_ALL():
    
         lat = np.concatenate((lat,cgrid.lat))
         lon = np.concatenate((lon, cgrid.lon))
-        tmp = np.concatenate((tmp, cgrid.time))
+        tmp = cgrid.time
  
-
-    return lat, lon, tmp
+        day = dt.datetime.fromordinal(tmp.astype('int')[0])
+        dayfrac = dt.timedelta(days=tmp[0]%1) - dt.timedelta(days = 366)
+        yeardaytmp = day + dayfrac 
+        yeardaytmp = yeardaytmp - dt.datetime(yeardaytmp.year, 1, 1, 0, 0)
+        yearday.append(yeardaytmp.days + yeardaytmp.seconds/86400)
+    return lat, lon, np.array(yearday)
 #%%
 #conts = np.linspace(35, 37, 30)
 #plt.figure()
