@@ -264,7 +264,7 @@ fig.subplots_adjust(right=0.9)
 cbar_ax = fig.add_axes([0.91, 0.25, 0.01, 0.5])
 cb = fig.colorbar(im, cax=cbar_ax)
 cb.set_ticks([-3, -2, -1, 0])
-cb.set_label('log$_{10}$(Concentration)')
+cb.set_label('log$_{10}$(Normalized Concentration)')
 cb.solids.set_edgecolor("face")
 plt.subplots_adjust(wspace=2, hspace=0.3)
 
@@ -366,11 +366,11 @@ fig.subplots_adjust(right=0.9)
 cbar_ax = fig.add_axes([0.91, 0.25, 0.01, 0.5])
 cb = fig.colorbar(im, cax=cbar_ax)
 cb.set_ticks([-3, -2, -1, 0])
-cb.set_label('log$_{10}$(Concentration)')
+cb.set_label('log$_{10}$(Normalized Concentration)')
 cb.solids.set_edgecolor("face")
 plt.subplots_adjust(wspace=2, hspace=0.3)
 
-#plt.savefig('/home/jacob/Dropbox/GulfStreamDye/LATMIXSCIENCE/FigureNOGEODye.pdf', bbox_inches='tight')
+plt.savefig('/home/jacob/Dropbox/GulfStreamDye/LATMIXSCIENCE/FigureNOGEODye.pdf', bbox_inches='tight')
 #%% Make Panel Plot UPDATED FORMATTING 2 PANEL
 ####################################################################################
 time1 = 0.37*86400

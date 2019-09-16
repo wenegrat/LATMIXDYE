@@ -28,6 +28,8 @@ from ReadAtlantis_ALL import ReadAtlantis_ALL
 from ReadAtlantis import ReadAtlantisSection
 from ReadKnorr_ALL import ReadKnorr_ALL
 
+import cartopy.crs as ccrs
+import cartopy.feature as cfeature
 #%% LOAD SST MAP
 
 filename = '/home/jacob/dedalus/LATMIX/SatData/AVHRR493data.mat'
@@ -226,3 +228,34 @@ plt.subplots_adjust(wspace=1, hspace=0.7)
 
 #plt.savefig('/home/jacob/Dropbox/GulfStreamDye/LATMIXSCIENCE/ObsOverview.pdf', bbox_inches='tight')
 
+#%%
+
+fig = plt.figure()
+ax = fig.add_subplot(1, 1, 1, projection=ccrs.Orthographic(-45, 45))
+
+ax.add_feature(cfeature.OCEAN)
+ax.add_feature(cfeature.LAND, edgecolor='black')
+#
+ax.set_global()
+#ax.gridlines()
+
+
+#ax.pcolormesh(longrid[:], latgrid[:], np.transpose(sst[:,:]), cmap=cmap, vmin = tliml, vmax=tlimh, transform = ccrs.PlateCarree())
+
+tf = ccrs.Geodetic()
+ax.plot([-66, -62], [38, 38],
+         color='r', linestyle='-',
+         transform=tf,
+         )
+ax.plot([-66, -62], [40, 40],
+         color='r', linestyle='-',
+         transform=tf,
+         )
+ax.plot([-66, -66], [38, 40],
+         color='r', linestyle='-',
+         transform=tf,
+         )
+ax.plot([-62, -62], [38, 40],
+         color='r', linestyle='-',
+         transform=tf,
+         )
