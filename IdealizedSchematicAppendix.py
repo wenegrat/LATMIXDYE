@@ -65,11 +65,11 @@ for j in range(zind, nz, 5):
 al = 10
 ax.set_xlim((0, al))
 ax.set_ylim((-al/2, al/2))
-ax.set_xticklabels([])
-ax.set_yticklabels([])
+ax.set_xticklabels([0])
+ax.set_yticklabels(['','',0,'',''], rotation = 0, va='center', ha='left')
 ax.set_zticklabels([])
 ax.set_xlabel('u')
-ax.set_ylabel('v')
+ax.set_ylabel('v', labelpad=10)
 ax.set_zlabel('z')
 ax.view_init(elev = 25, azim =-65)
 

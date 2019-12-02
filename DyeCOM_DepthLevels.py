@@ -140,13 +140,16 @@ def loadKappa(filename):
     kappa_nofront, Var_nofront, time_nofront = loadKappa('/home/jacob/dedalus/LATMIX/nofront.mat') # Pick which run
     kappa_nogeo, Var_nogeo, time_nogeo = loadKappa('/home/jacob/dedalus/LATMIX/notw.mat') # Pick which run
 #%%
-indl = np.argmin(np.abs(time_front/86400+64.5 - 64.88))
-indr = np.argmin(np.abs(time_front/86400+64.5 - 65.38))
+timevar = time_front
+kappaz = kappa_front
+
+indl = np.argmin(np.abs(timevar/86400+64.5 - 64.88))
+indr = np.argmin(np.abs(timevar/86400+64.5 - (65.5)))
 
 pstargrad = 0.06/2.5e3
 #pstargrad = 0.1/1e3
 bld = 100
-kappaz = kappa_front
+
 #kappaz[kappaz<0] = 0
 avgkappa = np.nanmean(kappaz[indl:indr])
 peakkappa = np.max(kappaz[indl:indr])

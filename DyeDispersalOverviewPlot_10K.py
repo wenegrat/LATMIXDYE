@@ -106,8 +106,15 @@ fig = plt.figure(figsize=(14, 10))
 
 
 conts = np.linspace(-3, 0, 13)
-bconts = np.linspace(-0.003, 0.02, 35)
+conts = np.linspace(-3, 0, 25)
+
+bconts = np.linspace(-0.005, 0.02, 25)
+btemp = b_f[162,74,1280] # buoyancy at center of initial dye patch
+bind = np.argmin(np.abs(bconts-btemp))
+bconts = bconts + (bconts[bind] - btemp)# + 0.5*(bconts[1]-bconts[0])
 cmap = 'plasma'
+cmap = 'inferno'
+cmap = cmo.thermal
 cmap = 'gnuplot'
 # Front
 ##################################################
@@ -146,7 +153,8 @@ for i in range(1, 4):
     
 
     im = subplotdict[f'dye{i}f'].contourf(xr, z[1:], dyevar, conts, extend='min', cmap = cmap)
-    subplotdict[f'dye{i}f'].contour(xr, z[1:], bvar, bconts, colors='w',  linewidths=0.5)
+    temp = subplotdict[f'dye{i}f'].contour(xr, z[1:], bvar, bconts, colors='w',  linewidths=0.5)
+#    subplotdict[f'dye{i}f'].clabel(temp, fmt='%1.5f')
     for c in im.collections:
         c.set_edgecolor("face")
     # Formatting stuff
@@ -256,7 +264,7 @@ fig.subplots_adjust(right=0.9)
 cbar_ax = fig.add_axes([0.91, 0.25, 0.01, 0.5])
 cb = fig.colorbar(im, cax=cbar_ax)
 cb.set_ticks([-3, -2, -1, 0])
-cb.set_label('log$_{10}$(Concentration)')
+cb.set_label('log$_{10}$(Normalized Concentration)')
 cb.solids.set_edgecolor("face")
 plt.subplots_adjust(wspace=2, hspace=0.3)
 
@@ -275,9 +283,19 @@ fig = plt.figure(figsize=(8, 10))
 
 
 conts = np.linspace(-3, 0, 13)
-bconts = np.linspace(-0.003, 0.02, 35)
+
+conts = np.linspace(-3, 0, 25)
+
+bconts = np.linspace(-0.005, 0.02, 25)
+btemp = b_ntw[162,74,640] # buoyancy at center of initial dye patch
+bind = np.argmin(np.abs(bconts-btemp))
+bconts = bconts - (bconts[bind] - btemp) + 0.5*(bconts[1]-bconts[0])
 cmap = 'plasma'
+cmap = 'inferno'
+cmap = cmo.thermal
 cmap = 'gnuplot'
+
+
 # NO-GEOMIX
 ##################################################
 subplotdict = dict()
@@ -348,7 +366,7 @@ fig.subplots_adjust(right=0.9)
 cbar_ax = fig.add_axes([0.91, 0.25, 0.01, 0.5])
 cb = fig.colorbar(im, cax=cbar_ax)
 cb.set_ticks([-3, -2, -1, 0])
-cb.set_label('log$_{10}$(Concentration)')
+cb.set_label('log$_{10}$(Normalized Concentration)')
 cb.solids.set_edgecolor("face")
 plt.subplots_adjust(wspace=2, hspace=0.3)
 
