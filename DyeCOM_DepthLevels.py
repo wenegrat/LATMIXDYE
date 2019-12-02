@@ -133,12 +133,14 @@ def loadKappa(filename):
     #XVarB = integrate.trapz(XVar*mask, x=z, axis=-1)/(np.abs(zdiff))
     
     kappa = 0.5*np.gradient(XVarB[0:time.size], axis=0)/np.gradient(time)
-    return kappa, XVarB, time
+    
+    kappaz = 0.5*np.gradient(Vsigma[0:time.size], axis=0)/np.gradient(time)
+    return kappa, kappaz, XVarB, time
 
 #%% 
-    kappa_front, Var_front, time_front = loadKappa('/home/jacob/dedalus/LATMIX/run10k.mat') # Pick which run
-    kappa_nofront, Var_nofront, time_nofront = loadKappa('/home/jacob/dedalus/LATMIX/nofront.mat') # Pick which run
-    kappa_nogeo, Var_nogeo, time_nogeo = loadKappa('/home/jacob/dedalus/LATMIX/notw.mat') # Pick which run
+    kappa_front, kappaz_front, Var_front, time_front = loadKappa('/home/jacob/dedalus/LATMIX/run10k.mat') # Pick which run
+    kappa_nofront, kappaz_nofront, Var_nofront, time_nofront = loadKappa('/home/jacob/dedalus/LATMIX/nofront.mat') # Pick which run
+    kappa_nogeo, kappaz_nogeo, Var_nogeo, time_nogeo = loadKappa('/home/jacob/dedalus/LATMIX/notw.mat') # Pick which run
 #%%
 timevar = time_front
 kappaz = kappa_front
@@ -166,7 +168,7 @@ print('K oscill: ' + str(kappaoscill))
 #print('Averaged: ' + str(avgkappa*bld*pstargrad)) # estimating one event per 3 days
 #print('Maximum:  ' + str(maxkappa*bld*pstargrad)) # estimating one event per 3 days
 
-#%% PLOT KAPPA
+#%% PLOT KAPPA H
 plt.figure()
 plt.plot(time_front/86400+64.5,kappa_front[0:time_front.size])
 plt.plot(time_nofront/86400+64.5,kappa_nofront[0:time_nofront.size])
@@ -178,6 +180,19 @@ plt.grid()
 plt.tight_layout()
 plt.xlim((64.5, 66))
 
+
+
+#%% PLOT KAPPA Z
+plt.figure()
+plt.plot(time_front/86400+64.5,kappaz_front[0:time_front.size])
+plt.plot(time_nofront/86400+64.5,kappaz_nofront[0:time_nofront.size])
+plt.plot(time_nogeo/86400+64.5,kappaz_nogeo[0:time_nogeo.size])
+
+plt.xlabel('Yearday')
+plt.ylabel('$\kappa_z$ m$^2$s$^{-1}$')
+plt.grid()
+plt.tight_layout()
+plt.xlim((64.5, 66))
 #%% PLOT Variance
 plt.rcParams['text.usetex'] = True
 plt.rcParams['mathtext.fontset'] = 'stix'

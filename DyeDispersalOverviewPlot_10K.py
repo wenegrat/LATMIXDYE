@@ -370,7 +370,7 @@ cb.set_label('log$_{10}$(Normalized Concentration)')
 cb.solids.set_edgecolor("face")
 plt.subplots_adjust(wspace=2, hspace=0.3)
 
-plt.savefig('/home/jacob/Dropbox/GulfStreamDye/LATMIXSCIENCE/FigureNOGEODye.pdf', bbox_inches='tight')
+#plt.savefig('/home/jacob/Dropbox/GulfStreamDye/LATMIXSCIENCE/FigureNOGEODye.pdf', bbox_inches='tight')
 #%% Make Panel Plot UPDATED FORMATTING 2 PANEL
 ####################################################################################
 time1 = 0.37*86400

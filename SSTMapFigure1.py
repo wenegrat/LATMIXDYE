@@ -117,7 +117,7 @@ latl4 = np.nanmean(lat[:,span],axis=0)
 lonl4 = np.nanmean(lon[:,span], axis=0)
 #%% LOAD ATLANTIS TRACK
 latA, lonA, timeA = ReadAtlantis_ALL()
-sectdistA, zA, salA, rhoA, yeardayA, latAS, lonAS = ReadAtlantisSection(7)
+sectdistA, zA, salA, rhoA, yeardayA, latAS, lonAS = ReadAtlantisSection(7) #7
 zA  = -zA
 #%%
 cmap = 'RdYlBu_r'
@@ -217,7 +217,8 @@ cb.set_ticks((conts[0], 36, conts[-1]))
 cb.solids.set_edgecolor("face")
 cb.set_label('Salinity [psu]')
 
-axSal.contour(sectdistA, zA, rhoA, 20, colors='k')
+rhoc = np.linspace(1025, 1028, 21)
+axSal.contour(sectdistA, zA, rhoA, rhoc, colors='k')
 axSal.set_ylim((-200, 0))
 axSal.set_ylabel('z [m]')
 axSal.set_xlabel('Cross-stream distance [km]')
@@ -229,18 +230,29 @@ plt.subplots_adjust(wspace=1, hspace=0.7)
 #plt.savefig('/home/jacob/Dropbox/GulfStreamDye/LATMIXSCIENCE/ObsOverview.pdf', bbox_inches='tight')
 
 #%%
+latgrid = temp0.subset.latgrid
+longrid = temp0.subset.lonEgrid
+sstdata = temp0.sst
+sst=(sstdata.bytes-0.5)*sstdata.scale; 
+sst[sst<0] = np.nan; 
+sst=sst+sstdata.min
+
+tliml = 5
+tlimh = 23
 
 fig = plt.figure()
-ax = fig.add_subplot(1, 1, 1, projection=ccrs.Orthographic(-45, 45))
+#ax = fig.add_subplot(1, 1, 1, projection=ccrs.Orthographic(-45, 45))
+ax = fig.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
 
-ax.add_feature(cfeature.OCEAN)
-ax.add_feature(cfeature.LAND, edgecolor='black')
+ax.pcolormesh(longrid, latgrid, np.transpose(sst), cmap=cmap, vmin = tliml, vmax=tlimh, transform = ccrs.PlateCarree())
+
+#ax.add_feature(cfeature.OCEAN)
+ax.add_feature(cfeature.LAND.with_scale('50m'), edgecolor='black')
 #
-ax.set_global()
-#ax.gridlines()
+#ax.set_global()
+ax.gridlines()
 
 
-#ax.pcolormesh(longrid[:], latgrid[:], np.transpose(sst[:,:]), cmap=cmap, vmin = tliml, vmax=tlimh, transform = ccrs.PlateCarree())
 
 tf = ccrs.Geodetic()
 ax.plot([-66, -62], [38, 38],
@@ -259,3 +271,8 @@ ax.plot([-62, -62], [38, 40],
          color='r', linestyle='-',
          transform=tf,
          )
+
+#%%
+import sys
+np.set_printoptions(threshold=sys.maxsize)
+cmo.balance(np.linspace(0,1,255))
