@@ -37,7 +37,6 @@ plt.rcParams['contour.negative_linestyle'] = 'solid'
 #matfile = spio.loadmat(filename,struct_as_record=True, squeeze_me=True)
 
 filename = '/home/jacob/dedalus/LATMIX/LatMix_2012/my_triaxus_SI2'
-filename = '/data/pacific/jacob/LATMIXDYE/LatMix_2012_Transfer/my_triaxus_SI2'
 matfile = spio.loadmat(filename,struct_as_record=True, squeeze_me=True)
 
 
@@ -45,8 +44,6 @@ depth = matfile['DEPTH']
 fluorppb = matfile['FLUORPPB']
 shiplog = matfile['SHIPLOG']
 rho = matfile['PDENS']
-T = matfile['TEMP']
-S = matfile['SALIN']
 jday = matfile['JDAY']
 lat = matfile['LAT']
 lon = matfile['LON']
@@ -69,7 +66,6 @@ T_ts = matfile['T_ts']
 S_ts = matfile['S_ts']
     #%% LOAD FLOAT DATA
 filename = '/home/jacob/dedalus/LATMIX/FloatData/Mar05_SI_2_Track.mat'
-filename = '/data/pacific/jacob/LATMIXDYE/FloatData_Transfer/Mar05_SI_2_Track.mat'
 matfile = spio.loadmat(filename,struct_as_record=False, squeeze_me=True)
 floatstruct = matfile['F']
 flat = floatstruct.lat
@@ -92,8 +88,6 @@ fvellon = np.gradient(flons)/ np.gradient(fyds*86400)
 fdir = np.arctan2(fvellat, fvellon)
 
 filename = '/home/jacob/dedalus/LATMIX/FloatData/Env.mat'
-filename = '/data/pacific/jacob/LATMIXDYE/FloatData_Transfer/Env.mat'
-
 matfile = spio.loadmat(filename,struct_as_record=False, squeeze_me=True)
 fT = matfile['T']
 fS = matfile['S']
@@ -123,10 +117,6 @@ jday_int = np.zeros((ns,))
 surf_rho = np.zeros((ns,))
 shiplog_int = np.zeros((ns,))
 zcom_rho = np.zeros((ns,))
-zcom_t = np.zeros((ns,))
-zcom_s = np.zeros((ns,))
-zcom_si = np.zeros((ns,))
-zcom_ti = np.zeros((ns,))
 for i in range(0, ns):
     mask = np.isfinite(fluorppb[:,i])
     fluor_int[i] = integrate.trapz(fluorppb[mask,i], x=depth[mask,i])
@@ -139,13 +129,6 @@ for i in range(0, ns):
     surf_rho[i] = rho[ind,i]
     ind = np.argmin(np.abs(depth[:,i] - zcom))
     zcom_rho[i] = rho[ind,i]
-    zcom_t[i] = T[ind,i]
-    zcom_s[i] = S[ind,i]
-    mask = np.logical_and(mask, np.isfinite(T[:,i]+S[:,i]))
-    zcom_ti[i] = integrate.trapz(fluorppb[mask,i]*T[mask,i], x=depth[mask,i])/fluor_int[i]
-    zcom_si[i] = integrate.trapz(fluorppb[mask,i]*S[mask,i], x=depth[mask,i])/fluor_int[i]
-
-
 # calc distance relative to float
 iflat = np.interp(jday_int, fyds, flats)
 iflon = np.interp(jday_int, fyds, flons)
@@ -153,155 +136,6 @@ distlat = (lat_int-iflat)*111e3*np.cos(lat_int)
 distlon = (lon_int-iflon)*111e3
 
 fdist = np.sign(lat_int-iflat)*np.sqrt(((lat_int - iflat)*111e3*np.cos(lat_int))**2 + ((lon_int - iflon)*111e3)**2)
-#%% 3 Panel Surface 
-
-cmap = 'gnuplot'
-cl = [-5, -1]
-norm = np.max(fluorppb_ts)
-mask = (fluorppb_ts/norm>10**(cl[0])) & (jday_ts<68)
-#mask = jday_ts<90
-xedges = np.linspace(34.5, 37, 150)
-yedges = np.linspace(13, 22, 150)
-X, Y = np.meshgrid(xedges, yedges)
-SA = gsw.SA_from_SP(X, 0, -66, 39)
-CT = gsw.CT_from_t(SA, Y, 0)
-R = gsw.rho(SA, CT, 0)
-R = R - 1000
-si = np.argmin(np.abs(fydr-65))
-ei = np.argmin(np.abs(fydr-68))
-dstep = (fydr[-1] - fydr[0])/fydr.size
-span = int(1/6/dstep)
-lims = range(si, ei, span)
-SA = gsw.SA_from_SP(fS, fP, -66, 39)
-CT = gsw.CT_from_t(SA, fT, fP)
-Rf = gsw.rho(SA, CT, 0)
-Rf = Rf - 1000
-norm = np.sum(fluorppb_ts[mask])
-norm = 1
-H, xedges, yedges = np.histogram2d(S_ts[mask], T_ts[mask], weights=(fluorppb_ts[mask]/norm),   bins=(xedges, yedges), density=False)
-fig = plt.figure(figsize=(12.78, 9.41))
-
-
-
-
-## SURFACE PLOT
-cl=[-3, 0]
-axsurf = plt.subplot2grid((3,4), (0,0), rowspan=1, colspan=4)
-normscatter = np.nanmax(fluor_int)
-axsurf.grid()
-mask = fluor_int/normscatter>1e-5
-#ix = axsurf.scatter(jday_int[mask], zcom_rho[mask], c=np.log10(fluor_int[mask]/normscatter), cmap=cmap, vmin=cl[0], vmax=cl[1])
-ix = axsurf.tricontourf(jday_int[mask], zcom_rho[mask], np.log10(fluor_int[mask]/normscatter), levels=40, cmap=cmap, vmin=cl[0], vmax=cl[1])
-for c in ix.collections:
-    c.set_edgecolor("face")
-ix = axsurf.scatter(jday_int[mask], zcom_rho[mask], c=np.log10(fluor_int[mask]/normscatter),s=20,edgecolor='w',linewidth=0.25, cmap=cmap, vmin=cl[0], vmax=cl[1])
-
-axsurf.scatter(fydr[lims], Rf[lims], marker='d', color='cornflowerblue', edgecolor='w', s=60)
-axsurf.set_ylabel('Density, $\sigma_0$ [kg m$^{-3}$]')
-axsurf.set_xlabel('Yearday')
-axsurf.set_xlim(64.925, 67.5)
-axsurf.set_ylim(25.5, 26.)
-#axsurf.text(64.55, 26.675 ,'c)', color='k', size=20, bbox=dict(facecolor='w', edgecolor='k'))
-
-cbaxes = inset_axes(axsurf, width="40%", height="3%", loc=4, borderpad=1.1) 
-
-cb = plt.colorbar(ix,cax=cbaxes,orientation='horizontal', extend='min')
-cb.set_label('log$_{10}$(Normalized Concentration)', fontsize=12)
-cb.set_ticks([-3, -2, -1, 0])
-cb.ax.tick_params(labelsize=12, pad=-1)
-#cb.ax.xaxis.set_label_position('top')
-cb.ax.xaxis.set_ticks_position('top')
-
-
-import matplotlib.tri as tri
-normscatter = np.nanmax(fluor_int)
-mask = fluor_int/normscatter>1e-5
-
-# Now create the Triangulation.
-# (Creating a Triangulation without specifying the triangles results in the
-# Delaunay triangulation of the points.)
-x = jday_int[mask]
-y = zcom_t[mask]
-z = np.log10(fluor_int[mask]/normscatter)
-triang = tri.Triangulation(jday_int[mask], zcom_t[mask])
-#-----------------------------------------------------------------------------
-# Improving the triangulation before high-res plots: removing flat triangles
-#-----------------------------------------------------------------------------
-# masking badly shaped triangles at the border of the triangular mesh.
-maskt = tri.TriAnalyzer(triang).get_flat_tri_mask(0.1)
-#triang.set_mask(maskt)
-
-# refining the data
-refiner = tri.UniformTriRefiner(triang)
-tri_refi, z_test_refi = refiner.refine_field(z, subdiv=3)
-
-# Temperature
-cl=[-3, 0]
-axsurf = plt.subplot2grid((3,4), (1,0), rowspan=1, colspan=4)
-
-axsurf.grid()
-
-ix = axsurf.tricontourf(jday_int[mask], zcom_ti[mask], np.log10(fluor_int[mask]/normscatter), levels=40, cmap=cmap, vmin=cl[0], vmax=cl[1])
-#ix = axsurf.tricontourf(tri_refi, z_test_refi,levels=100,  cmap=cmap, vmin=cl[0], vmax=cl[1])
-for c in ix.collections:
-    c.set_edgecolor("face")
-ix = axsurf.scatter(jday_int[mask], zcom_t[mask], c=np.log10(fluor_int[mask]/normscatter),s = 20,edgecolor='w', linewidth=0.25, cmap=cmap, vmin=cl[0], vmax=cl[1])
-axsurf.scatter(fydr[lims], fT[lims], marker='d', color='cornflowerblue', edgecolor='w', s=60)
-axsurf.set_ylabel('Temperature [$^{\circ}$ C]')
-axsurf.set_xlabel('Yearday')
-axsurf.set_xlim(64.925, 67.5)
-axsurf.set_ylim(18, 21)
-#axsurf.text(64.55, 26.675 ,'c)', color='k', size=20, bbox=dict(facecolor='w', edgecolor='k'))
-
-#cbaxes = inset_axes(axsurf, width="40%", height="3%", loc=4, borderpad=1.1) 
-
-#cb = plt.colorbar(ix,cax=cbaxes,orientation='horizontal', extend='min')
-#cb.set_label('log$_{10}$(Normalized Concentration)', fontsize=12)
-#cb.set_ticks([-3, -2, -1, 0])
-#cb.ax.tick_params(labelsize=12, pad=-1)
-#cb.ax.xaxis.set_label_position('top')
-#cb.ax.xaxis.set_ticks_position('top')
-
-# Sailinity
-cl=[-3, 0]
-axsurf = plt.subplot2grid((3,4), (2,0), rowspan=1, colspan=4)
-normscatter = np.nanmax(fluor_int)
-axsurf.grid()
-mask = fluor_int/normscatter>1e-5
-ix = axsurf.tricontourf(jday_int[mask], zcom_si[mask], np.log10(fluor_int[mask]/normscatter), levels=40, cmap=cmap, vmin=cl[0], vmax=cl[1])
-for c in ix.collections:
-    c.set_edgecolor("face")
-ix = axsurf.scatter(jday_int[mask], zcom_s[mask], c=np.log10(fluor_int[mask]/normscatter),s=20,edgecolor='w',linewidth=0.25, cmap=cmap, vmin=cl[0], vmax=cl[1])
-axsurf.scatter(fydr[lims], fS[lims], marker='d', color='cornflowerblue', edgecolor='w', s=60)
-axsurf.set_ylabel('Salinity, [PSU]')
-axsurf.set_xlabel('Yearday')
-axsurf.set_xlim(64.925, 67.5)
-axsurf.set_ylim(35.75, 36.5)
-#axsurf.text(64.55, 26.675 ,'c)', color='k', size=20, bbox=dict(facecolor='w', edgecolor='k'))
-#
-#cbaxes = inset_axes(axsurf, width="40%", height="3%", loc=4, borderpad=1.1) 
-
-#cb = plt.colorbar(ix,cax=cbaxes,orientation='horizontal', extend='min')
-#cb.set_label('log$_{10}$(Normalized Concentration)', fontsize=12)
-#cb.set_ticks([-3, -2, -1, 0])
-#cb.ax.tick_params(labelsize=12, pad=-1)
-#cb.ax.xaxis.set_label_position('top')
-#cb.ax.xaxis.set_ticks_position('top')
-plt.subplots_adjust(wspace=0.4, hspace=0.4)
-
-
-plt.subplots_adjust(wspace=0.4, hspace=0.4)
-
-
-
-#axs['5'].contour(jd, sd, grid_surf_rho, 5)
-#axs['5'].set_xlim([64.75, 67])
-#axsurf.set_ylim(-10, 10)
-#plt.scatter(S_ts[mask], T_ts[mask], c=np.log10(fluorppb_ts[mask]/norm), s=1)
-
-#plt.savefig('/data/pacific/jacob/LATMIXDYE/NEWFIGS/DyeDensity_2.pdf', bbox_inches='tight')
-
-
 #%% HISTO IN T-S Space 3 panel 
 
 cmap = 'gnuplot'
