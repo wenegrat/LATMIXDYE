@@ -47,7 +47,7 @@ def ReadAtlantisSection(secnum):
           rho = gsw.rho(SA, CT, press)
           return rho
     #%%
-    filename = '/home/jacob/dedalus/LATMIX/surveyD_files/SurveyD0{}.mat'.format(str(secnum)) # Front run
+    filename = '/data/pacific/jacob/LATMIXDYE/surveyD_files/SurveyD0{}.mat'.format(str(secnum)) # Front run
     matfile = spio.loadmat(filename,struct_as_record=False, squeeze_me=True)
     
 #    print("Keys: %s" % matfile.keys())

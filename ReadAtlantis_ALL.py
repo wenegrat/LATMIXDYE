@@ -31,9 +31,9 @@ def ReadAtlantis_ALL():
     yearday = []
     for secnum in range(1, 16):
         if secnum<10:
-            filename = '/home/jacob/dedalus/LATMIX/surveyD_files/SurveyD0{}.mat'.format(str(secnum)) # Front run
+            filename = '/data/pacific/jacob/LATMIXDYE/surveyD_files/SurveyD0{}.mat'.format(str(secnum)) # Front run
         else:
-            filename = '/home/jacob/dedalus/LATMIX/surveyD_files/SurveyD{}.mat'.format(str(secnum)) # Front run
+            filename = '/data/pacific/jacob/LATMIXDYE/surveyD_files/SurveyD{}.mat'.format(str(secnum)) # Front run
 
         matfile = spio.loadmat(filename,struct_as_record=False, squeeze_me=True)
     
